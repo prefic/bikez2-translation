@@ -60,7 +60,7 @@
 
 	*/
 
-	struct ukontekstuurit {//dude textures
+	struct ukontekstuurit {//character textures
 		int osa[4];		
 	};
 
@@ -119,7 +119,7 @@
 
 	struct person
 	{
-		int kuva;//Picture in dude
+		int kuva;//Picture in character
 		float kulmamopoon;//angle to player
 		float distanssi;//distance from player
 		float x,z,y;
@@ -131,7 +131,7 @@
 		int sektorix,sektoriz;//in wich sector it is *8000
 		int jaosx,jaosz;//in wich section *400
 		bool kuole;//call for dying animation
-		bool pois;//dude completely away
+		bool pois;//character completely away
 		ruumiinosan_koordinaatit ruumiinosa[11];//bodypart_coordinates bodypart
 		int aseena;//wich weapon? -1=no weapon
 		float asetime;//gun timer
@@ -147,10 +147,10 @@
 
 	struct missio
 	{
-		int tyyppi;//mission type (kill a dude / go to place x)
+		int tyyppi;//mission type (kill a character / go to place x)
 		int alatyyppi;//mission subtype (kill within a timelimit)
-		int kohdetyyppi;//target 0=dude 1=coordinates 2=moped
-		int kohde[100];//possible target (kill a dude?)
+		int kohdetyyppi;//target 0=character 1=coordinates 2=moped
+		int kohde[100];//possible target (kill a character?)
 		person asiakas[100];//taxi ride
 		float kohdex[100], kohdez[100];//targets coordinates (go to place x?)
 		float aika;//time		
@@ -188,14 +188,14 @@
 		float kulmakeuliminen;//Angle of wheelie
 		float kulmakallistus;//tilting of the bike
 		float timesparks;//sparks doesnt appear too often
-		int nearestukko;//Nearest dude
+		int nearestukko;//Nearest character
 		missio mission;//What mission is on
 		missio mission_arvottu;//random mission 
 		int missionumero;//What mission is given from the level
 		int rahat;//ammount of money
 		int mopona;//What kind of moped
 		int sektorix,sektoriz;//In wich sector it is
-		int valittuukko;//what dude is aimed at -3=no-one
+		int valittuukko;//what character is aimed at -3=no-one
 		float energia;//energy
 		int level;//level of the given mission 
 		bool osuma[100];//has it collided with walls lately
@@ -254,10 +254,10 @@
 		//int jaosx,jaosz;//in wich section it is *800
 		float aika;//time
 		float nopeus;//bullet speed
-		int kenen;//whos bullet it is// positive=mopeds -1=dude
-		int kuka;//which dude shot it (prevents suicides)
+		int kenen;//whos bullet it is// positive=mopeds -1=character
+		int kuka;//which character shot it (prevents suicides)
 		float distanssi;//distance from the player
-		int kohde;//-6667=no-one, negatives-1 are mopeds, positives are dudes
+		int kohde;//-6667=no-one, negatives-1 are mopeds, positives are characters
 	};
 
 	struct weapon
@@ -342,8 +342,8 @@ void poistavalo(int a, int *b);//deletes light
 void moveparts(int q);//moves parts to their places
 BOOL drawfast(obj *tavara);//draws faster
 void laskeukot(void);//calculates movements of humans
-//void poistaukko(int a);//deletes a dude
-void renderukot(void);//draws dudes
+//void poistaukko(int a);//deletes a character
+void renderukot(void);//draws characters
 //void kirjota(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1);
 void kirjota(INT x, INT y, INT fontti,CHAR teksti[100]);
 void render_game(void);//draws moped driving
@@ -351,7 +351,7 @@ void render_mission(void);//draws mission briefing
 void arvo_mission(bikebase *mopot,int missionumero);
 void laskekoordinaatit(float *x,float *z);//gives x and z wich are not inside houses from the map.
 void laskemissiot(bikebase *mopot);//examines is a mission accomplished
-void arvoukko(int q);//randomizes a dude to field
+void arvoukko(int q);//randomizes a character to field
 void luemissiot(void);//reads missions
 void laskemopot(void);//calculate mopeds //for Artificial intelligence of mopeds
 void arvomopo(int d);//randomizes a moped to field
@@ -378,7 +378,7 @@ void startApplication(HINSTANCE hInstance);
 	const int maksimiluoteja=1000;//400//maximium ammount of bullets
 	const int maksimisavuja=4000;//400//maximium ammount of smokes
 	const int maksimivaloja=10;//maximium ammount of lights
-	const int maksimiukkoja=1000;//maximium ammount of dudes
+	const int maksimiukkoja=1000;//maximium ammount of characters
 	D3DVECTOR keskipiste[maksimisavuja]; //centerpoint[maximium ammount of smokes]
 	DWORD visible[maksimisavuja];
 	float radius[maksimisavuja];
@@ -393,11 +393,11 @@ void startApplication(HINSTANCE hInstance);
 	weapon ase[20];//guns
 	smoke savu[maksimisavuja];//smokes
 	int maps[200][200];
-	person ukko[maksimiukkoja];//person dude
-	D3DVECTOR keskipisteukko[maksimiukkoja];//center point dude
-	DWORD visibleukko[maksimiukkoja];//visible dude
-	float radiusukko[maksimiukkoja];//radius dude
-	D3DVECTOR keskipistemap[1000];//centerpoint dude
+	person ukko[maksimiukkoja];//person character[maximium ammount of characters]
+	D3DVECTOR keskipisteukko[maksimiukkoja];//center point character
+	DWORD visibleukko[maksimiukkoja];//visible character
+	float radiusukko[maksimiukkoja];//radius character
+	D3DVECTOR keskipistemap[1000];//centerpoint character
 	DWORD visiblemap[1000];
 	float radiusmap[1000];
 	//float nopeusoli;
@@ -408,7 +408,7 @@ void startApplication(HINSTANCE hInstance);
 	bool mapmode,mapmode2;//0 =normal 1=from above
 	float kamerax1,kameray1,kameraz1;//camera from
 	float kamerax2,kameray2,kameraz2;//camera to
-	ukontekstuurit ukkotekstuuri[10];//dudetextures
+	ukontekstuurit ukkotekstuuri[10];//charactertextures
 	missiovarasto missionlevel[10];//mission reservoir
 	char missioninfo[21][800];//mission briefing
 	int missionantovaihe;//is briefing readed
@@ -457,7 +457,7 @@ void startApplication(HINSTANCE hInstance);
 	bool pressed,pressed2;//is any key pressed
 
 
-	int ukkoja;//ammount of dudes in a level
+	int ukkoja;//ammount of characters in a level
 	int savuja;//ammount of smokes in a level
 	int luoteja;//ammount of bullets in the air
 	LPDIRECT3DDEVICE7 m_pDevice;
