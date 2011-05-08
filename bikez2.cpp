@@ -3814,7 +3814,7 @@ void laskeukot(void) //calculatecharacters
 
 	}
 
-void renderukot(void){
+void renderukot(void){ //render characters
 	int q,a,d;
 	
 	
@@ -4039,12 +4039,11 @@ void renderukot(void){
 	}
 }
 
-//fontti tarkottaakin rivitetäänkö teksti(monenko char:n päästä
-//font means if text is cut in lines after some ammount of letters
+//font means after ammount of letters text is cut to lines
 //void kirjota(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1)
-void kirjota(INT x, INT y, INT fontti,CHAR teksti[100])
+void kirjota(INT x, INT y, INT fontti,CHAR teksti[100]) //write
 {
-	//RECT loota;
+	//RECT loota; //boxxy
 	INT nume;
 	int xplus=0;
 	int yplus=0;
@@ -5654,7 +5653,7 @@ void render_mission(void){//render mission briefing
 					
 }
 
-void arvo_mission(bikebase *mopot,int missionumero){
+void arvo_mission(bikebase *mopot,int missionumero){ //randomize a mission. 
 	
 	int f;
 	float kx,kz,distanssi;
@@ -5765,7 +5764,7 @@ fa:
 
 }
 
-void laskemissiot(bikebase *mopot){
+void laskemissiot(bikebase *mopot){ //calculate missions
 	int q,f;
 	bool kuollut=true;
 	if(mopot->mission.suoritettu!=0) return;
@@ -5862,7 +5861,7 @@ void laskemissiot(bikebase *mopot){
 
 }
 
-void arvoukko(int q){//randomizes a character to field
+void arvoukko(int q){//create random character
 
 	int b,ampuva,a;
 	int prosentti;
@@ -6044,7 +6043,7 @@ lue:
 		fclose(fil);
 }
 
-void laskemopot(void){
+void laskemopot(void){ //calculate mopeds
 	int q,q2,d;
 	float dq,temp1;
 	int negaatio;
@@ -6304,7 +6303,7 @@ void arvomopo(int d){ //randomize moped
 
 }
 
-void render_varikko(void){//renders a workshop
+void render_varikko(void){//render workshop
 	RECT     rcSource, rcDest, loota;
 	int a,b;
 	int valittua,valittub,valittuc;
@@ -7403,7 +7402,7 @@ void render_menu(void){//renders the menu
 	
 }
 
-void peli_uusi(void){
+void peli_uusi(void){ //new game
 
 	int a,b,d,q;
 	float nop;
@@ -7639,7 +7638,7 @@ void peli_uusi(void){
 	
 
 }
-void sounds_start(void){//sounds
+void sounds_start(void){
 
 	//sounds
 	if((!options[1])&&(!options[2])){return;}
@@ -7748,7 +7747,7 @@ void cfg_load(void){
 		//SOUNDS_ON=options[1];
 
 }
-void soita(int samplenumero,float volume,float paikkax,float paikkaz){
+void soita(int samplenumero,float volume,float paikkax,float paikkaz){ //play a sound
 	if(soundtimer[samplenumero]<40)return;
 	if(!(options[1]&&SOUNDS_LOADED))return;
 
@@ -7798,4 +7797,5 @@ void clearzbuffer(void){
 		ddbltfx.dwFillDepth=0x00FFFFFF;
 		zpuskuri->Blt(NULL,NULL,NULL,DDBLT_DEPTHFILL,&ddbltfx);
 	}*/
+
 }
