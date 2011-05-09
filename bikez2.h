@@ -61,7 +61,7 @@
 
 	*/
 
-	struct ukontekstuurit {//character textures
+	struct charactertextures {
 		int osa[4];		
 	};
 
@@ -111,7 +111,7 @@
 		obj *malli;
 	};
 
-	struct ruumiinosan_koordinaatit//body part coordinates
+	struct bodypartCoordinates//body part coordinates
 	{
 		float x,y,z;
 		float rx,ry,rz;
@@ -133,7 +133,7 @@
 		int jaosx,jaosz;//in wich section *400
 		bool kuole;//call for dying animation
 		bool pois;//character completely away
-		ruumiinosan_koordinaatit ruumiinosa[11];//bodypart_coordinates bodypart
+		bodypartCoordinates ruumiinosa[11];//bodypart_coordinates bodypart
 		int aseena;//wich weapon? -1=no weapon
 		float asetime;//gun timer
 		float energia;//energy
@@ -163,7 +163,7 @@
 		int kohteita;//Ammount of similiar targets
 	};
 
-	struct missiovarasto//mission reservoir
+	struct missionReservoir//mission reservoir
 	{
 		missio mission[20];
 		int missions;//Number of mission in a level
@@ -315,38 +315,38 @@
 	
 
 	
-BOOL lataa(char nimi[200],obj *kohde,BOOL mirror,BOOL miekkakala);//load... swordfish
-BOOL lataawall(char nimi[200],linjagroup *kohde,BOOL mirror);//loadwall
-BOOL lataatext();//loadtext
+BOOL load(char nimi[200],obj *kohde,BOOL mirror,BOOL miekkakala);//load... swordfish
+BOOL loadwall(char nimi[200],linjagroup *kohde,BOOL mirror);//loadwall
+BOOL loadtext();//loadtext
 void init(void);
 bool createscreen(void);
 bool Render(void);
-bool luekuvat(void);//read pictures
+bool readpictures(void);//read pictures
 void CleanUp(void);//destroys stuff
 BOOL draw(obj *tavara);
-void poistaobj(obj *kohde, int indeksi);//delete object
+void removeobj(obj *kohde, int indeksi);//delete object
 bool initkeyb(void);
 bool deinitkeyb(void);
-void luekeyb(void);//readkeyb
+void readkeyb(void);//readkeyb
 void aja(bikebase *mopot);//driving mopeds
-void alustamopot(void);//initializing mopeds
-void laskeosumat(void);//calculate collisions
+void initializemopeds(void);//initializing mopeds
+void calculateCollisions(void);//calculate collisions
 void ammu(int kohde,int kuka,int kenen, float aika,bikebase *mopot, int aseena,float paikkax,float paikkay,float paikkaz,float suuntax,float suuntay,float suuntaz);//shooting //target, who, whos, time, bikebase, mopeds, as_a_weapon, placex,palcey,placez, directionx,directiony,directionz
-void laskeluodit(void);//bullets fly
-void savusta(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e);//creates smoke
-//void poistaluoti(int a);//poistaa luodin sarjasta
-void laskesavut(void);//laskee savut
+void calculatebullets(void);//bullets fly
+void fromsmoke(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e);//creates smoke
+//void removebullet(int a);//poistaa luodin sarjasta
+void calculatesmokes(void);//laskee savut
 void SetupPixelFog(DWORD dwColor, DWORD dwMode);//fog
 void SetupVertexFog(float fStart, float fEnd,DWORD dwColor, DWORD dwMode, BOOL fUseRange, FLOAT fDensity);//fog
-void valota(float x,float y,float z);//makes light
-void poistavalo(int a, int *b);//deletes light
+void setLights(float x,float y,float z);//makes light
+void removeLight(int a, int *b);//deletes light
 void moveparts(int q);//moves parts to their places
 BOOL drawfast(obj *tavara);//draws faster
-void laskeukot(void);//calculates movements of humans
-//void poistaukko(int a);//deletes a character
-void renderukot(void);//draws characters
-//void kirjota(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1);
-void kirjota(INT x, INT y, INT fontti,CHAR teksti[100]);
+void calculatecharacters(void);//calculates movements of humans
+//void removecharacter(int a);//deletes a character
+void rendercharacters(void);//draws characters
+//void rendertext(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1);
+void rendertext(INT x, INT y, INT fontti,CHAR teksti[100]);
 void render_game(void);//draws moped driving
 void render_mission(void);//draws mission briefing
 void arvo_mission(bikebase *mopot,int missionumero);
@@ -356,17 +356,17 @@ void arvoukko(int q);//randomizes a character to field
 void luemissiot(void);//reads missions
 void laskemopot(void);//calculate mopeds //for Artificial intelligence of mopeds
 void arvomopo(int d);//randomizes a moped to field
-void render_varikko(void);//draws a depot
+void render_workshop(void);//draws a depot
 void readkey_game(void);//read keys during game
-void luesavet(void);//read saved games
-void peli_lataa(void);//loads a game
-void peli_tallenna(void);//saves a game
+void readsaves(void);//read saved games
+void game_load(void);//loads a game
+void game_save(void);//saves a game
 void render_menu(void);//draws the menu
-void peli_uusi(void);//starts a new game
+void game_new(void);//starts a new game
 void cfg_save(void);//saves settings
 void cfg_load(void);//loads settings
 void sounds_start(void);//initialize voices
-void soita(int samplenumero,float volume,float paikkax,float paikkaz);//plays a sound
+void playsound(int samplenumero,float volume,float paikkax,float paikkaz);//plays a sound
 void clearzbuffer(void);
 void startApplication(HINSTANCE hInstance);
 
@@ -409,8 +409,8 @@ void startApplication(HINSTANCE hInstance);
 	bool mapmode,mapmode2;//0 =normal 1=from above
 	float kamerax1,kameray1,kameraz1;//camera from
 	float kamerax2,kameray2,kameraz2;//camera to
-	ukontekstuurit ukkotekstuuri[10];//charactertextures
-	missiovarasto missionlevel[10];//mission reservoir
+	charactertextures ukkotekstuuri[10];//charactertextures
+	missionReservoir missionlevel[10];//mission reservoir
 	char missioninfo[21][800];//mission briefing
 	int missionantovaihe;//is briefing readed
 	float pelinopeus;//game speed
@@ -554,7 +554,7 @@ void startApplication(HINSTANCE hInstance);
 
 	*/
 
-	struct ukontekstuurit {//character textures
+	struct charactertextures {//character textures
 		int osa[4];		
 	};
 
@@ -604,7 +604,7 @@ void startApplication(HINSTANCE hInstance);
 		obj *malli;
 	};
 
-	struct ruumiinosan_koordinaatit//body part coordinates
+	struct bodypartCoordinates//body part coordinates
 	{
 		float x,y,z;
 		float rx,ry,rz;
@@ -626,7 +626,7 @@ void startApplication(HINSTANCE hInstance);
 		int jaosx,jaosz;//in wich section *400
 		bool kuole;//call for dying animation
 		bool pois;//character completely away
-		ruumiinosan_koordinaatit ruumiinosa[11];//bodypart_coordinates bodypart
+		bodypartCoordinates ruumiinosa[11];//bodypart_coordinates bodypart
 		int aseena;//wich weapon? -1=no weapon
 		float asetime;//gun timer
 		float energia;//energy
@@ -656,7 +656,7 @@ void startApplication(HINSTANCE hInstance);
 		int kohteita;//Ammount of similiar targets
 	};
 
-	struct missiovarasto//mission reservoir
+	struct missionReservoir//mission reservoir
 	{
 		missio mission[20];
 		int missions;//Number of mission in a level
@@ -808,38 +808,38 @@ void startApplication(HINSTANCE hInstance);
 	
 
 	
-BOOL lataa(char nimi[200],obj *kohde,BOOL mirror,BOOL miekkakala);//load... swordfish
-BOOL lataawall(char nimi[200],linjagroup *kohde,BOOL mirror);//loadwall
-BOOL lataatext();//loadtext
+BOOL load(char nimi[200],obj *kohde,BOOL mirror,BOOL miekkakala);//load... swordfish
+BOOL loadwall(char nimi[200],linjagroup *kohde,BOOL mirror);//loadwall
+BOOL loadtext();//loadtext
 void init(void);
 bool createscreen(void);
 bool Render(void);
-bool luekuvat(void);//read pictures
+bool readpictures(void);//read pictures
 void CleanUp(void);//destroys stuff
 BOOL draw(obj *tavara);
-void poistaobj(obj *kohde, int indeksi);//delete object
+void removeobj(obj *kohde, int indeksi);//delete object
 bool initkeyb(void);
 bool deinitkeyb(void);
-void luekeyb(void);//readkeyb
+void readkeyb(void);//readkeyb
 void aja(bikebase *mopot);//driving mopeds
-void alustamopot(void);//initializing mopeds
-void laskeosumat(void);//calculate collisions
-void ammu(int kohde,int kuka,int kenen, float aika,bikebase *mopot, int aseena,float paikkax,float paikkay,float paikkaz,float suuntax,float suuntay,float suuntaz);//shooting //target, who, whos, time, bikebase, mopeds, as_a_weapon, placex,palcey,placez, directionx,directiony,directionz
-void laskeluodit(void);//bullets fly
-void savusta(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e);//creates smoke
-//void poistaluoti(int a);//poistaa luodin sarjasta
-void laskesavut(void);//laskee savut
+void initializemopeds(void);//initializing mopeds
+void calculateCollisions(void);//calculate collisions
+void shoot(int kohde,int kuka,int kenen, float aika,bikebase *mopot, int aseena,float paikkax,float paikkay,float paikkaz,float suuntax,float suuntay,float suuntaz);//shooting //target, who, whos, time, bikebase, mopeds, as_a_weapon, placex,palcey,placez, directionx,directiony,directionz
+void calculatebullets(void);//bullets fly
+void fromsmoke(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e);//creates smoke
+//void removebullet(int a);//poistaa luodin sarjasta
+void calculatesmokes(void);//laskee savut
 void SetupPixelFog(DWORD dwColor, DWORD dwMode);//fog
 void SetupVertexFog(float fStart, float fEnd,DWORD dwColor, DWORD dwMode, BOOL fUseRange, FLOAT fDensity);//fog
-void valota(float x,float y,float z);//makes light
-void poistavalo(int a, int *b);//deletes light
+void setLights(float x,float y,float z);//makes light
+void removeLight(int a, int *b);//deletes light
 void moveparts(int q);//moves parts to their places
 BOOL drawfast(obj *tavara);//draws faster
-void laskeukot(void);//calculates movements of humans
-//void poistaukko(int a);//deletes a character
-void renderukot(void);//draws characters
-//void kirjota(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1);
-void kirjota(INT x, INT y, INT fontti,CHAR teksti[100]);
+void calculatecharacters(void);//calculates movements of humans
+//void removecharacter(int a);//deletes a character
+void rendercharacters(void);//draws characters
+//void rendertext(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1);
+void rendertext(INT x, INT y, INT fontti,CHAR teksti[100]);
 void render_game(void);//draws moped driving
 void render_mission(void);//draws mission briefing
 void arvo_mission(bikebase *mopot,int missionumero);
@@ -849,17 +849,17 @@ void arvoukko(int q);//randomizes a character to field
 void luemissiot(void);//reads missions
 void laskemopot(void);//calculate mopeds //for Artificial intelligence of mopeds
 void arvomopo(int d);//randomizes a moped to field
-void render_varikko(void);//draws a depot
+void render_workshop(void);//draws a depot
 void readkey_game(void);//read keys during game
-void luesavet(void);//read saved games
-void peli_lataa(void);//loads a game
-void peli_tallenna(void);//saves a game
+void readsaves(void);//read saved games
+void game_load(void);//loads a game
+void game_save(void);//saves a game
 void render_menu(void);//draws the menu
-void peli_uusi(void);//starts a new game
+void game_new(void);//starts a new game
 void cfg_save(void);//saves settings
 void cfg_load(void);//loads settings
 void sounds_start(void);//initialize voices
-void soita(int samplenumero,float volume,float paikkax,float paikkaz);//plays a sound
+void playsound(int samplenumero,float volume,float paikkax,float paikkaz);//plays a sound
 void clearzbuffer(void);
 void startApplication(HINSTANCE hInstance);
 
@@ -902,8 +902,8 @@ void startApplication(HINSTANCE hInstance);
 	bool mapmode,mapmode2;//0 =normal 1=from above
 	float kamerax1,kameray1,kameraz1;//camera from
 	float kamerax2,kameray2,kameraz2;//camera to
-	ukontekstuurit ukkotekstuuri[10];//charactertextures
-	missiovarasto missionlevel[10];//mission reservoir
+	charactertextures ukkotekstuuri[10];//charactertextures
+	missionReservoir missionlevel[10];//mission reservoir
 	char missioninfo[21][800];//mission briefing
 	int missionantovaihe;//is briefing readed
 	float pelinopeus;//game speed

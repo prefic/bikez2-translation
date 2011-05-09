@@ -105,7 +105,7 @@ BOOL bGotMsg;
 			{   
 
 
-				luekeyb();
+				readkeyb();
 				if(!quittaos)
 				{
 					Render();
@@ -391,7 +391,7 @@ void init(void)
 	LoadCursor(NULL, IDC_ARROW);
 	initkeyb();
 	createscreen();
-	luekuvat();
+	readpictures();
 	cfg_load();
 	//background image
 	m_pDevice->Clear( 0, NULL, D3DCLEAR_TARGET, 0xFFFFFFFF, 0, 0 );
@@ -485,7 +485,7 @@ void init(void)
 	luemissiot();
 
 	//load textures
-	lataatext();
+	loadtext();
 	DDCOLORKEY color;	
 	color.dwColorSpaceHighValue=0x000000;//CLR_INVALID is top corner
 	color.dwColorSpaceLowValue=0x000000;
@@ -531,8 +531,8 @@ void init(void)
 
 	//load walls
 	viivagrouppia=2;//remember to add it to the header
-	lataawall("models/wall0.3dw",&viivagroup[0],false);//walls of maps(or levels)
-	lataawall("models/wall1.3dw",&viivagroup[1],false);//moped
+	loadwall("models/wall0.3dw",&viivagroup[0],false);//walls of maps(or levels)
+	loadwall("models/wall1.3dw",&viivagroup[1],false);//moped
 
 	valittu=false;
 	menuvalittu=1;
@@ -852,8 +852,8 @@ void init(void)
 	for (q=0; q<100; q++){
 		elapsed3[q]=15;
 	}
-	valota(0,0,0);
-	valota(0,0,0);
+	setLights(0,0,0);
+	setLights(0,0,0);
 
 
 }
@@ -976,7 +976,7 @@ void moveparts(int q)
 
 }
 
-void alustamopot(void)//initialize mopeds
+void initializemopeds(void)//initialize mopeds
 {
 	int d,a;
 	
@@ -1017,7 +1017,7 @@ void alustamopot(void)//initialize mopeds
 
 }
 
-BOOL lataawall(char nimi[200],linjagroup *kohde,BOOL mirror)
+BOOL loadwall(char nimi[200],linjagroup *kohde,BOOL mirror)
 {
 	FILE *fil;
 	CHAR rivi[300];
@@ -1327,7 +1327,7 @@ BOOL lataa(char nimi[200],obj *kohde,BOOL mirror,BOOL miekkakala)
 
 
 
-BOOL lataatext()
+BOOL loadtext()
 {
 
 	FILE *fil;
@@ -1642,7 +1642,7 @@ bool createscreen(void){
 
 }
 
-void luekeyb(void)
+void readkeyb(void)
 {
 	#define KEYDOWN(name,key) (name[key] & 0x80)  
 	int q;
@@ -1804,7 +1804,7 @@ void luekeyb(void)
 				if((menuvalittu<11)&&(menuvalittu>0))
 				{
 					tallennuspaikka=menuvalittu-1;
-					peli_lataa();
+					game_load();
 					SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
 					break;
 				}
@@ -1829,7 +1829,7 @@ void luekeyb(void)
 				if((menuvalittu<11)&&(menuvalittu>0))
 				{
 					tallennuspaikka=menuvalittu-1;					
-					peli_tallenna();
+					game_save();
 					if(pelivaihe_oli==2){
 						pelivaihe2=0;
 						pelivaihe=2;
@@ -1838,7 +1838,7 @@ void luekeyb(void)
 						pelivaihe2=0;
 						pelivaihe=4;
 					}
-					luesavet();
+					readsaves();
 					SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
 					break;
 				}
@@ -1872,18 +1872,18 @@ void luekeyb(void)
 						if(pelivaihe2==5){//difficulty level
 							vaikeustaso=0;
 							SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
-							peli_uusi();
+							game_new();
 						}						
 						break;
 					case 1:
 						if(pelivaihe2==0){//load
-							luesavet(); pelivaihe2=1; pelivaihe_oli=4;
+							readsaves(); pelivaihe2=1; pelivaihe_oli=4;
 							SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
 						}
 						if(pelivaihe2==5){//difficulty level
 							vaikeustaso=1;
 							SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
-							peli_uusi();
+							game_new();
 						}
 						break;
 					case 2:
@@ -1894,7 +1894,7 @@ void luekeyb(void)
 						if(pelivaihe2==5){//difficulty level
 							vaikeustaso=2;
 							SndObjPlay(voices[0], NULL,options[1]&&SOUNDS_LOADED);
-							peli_uusi();
+							game_new();
 						}
 						break;
 					case 3:
@@ -1951,7 +1951,7 @@ void luekeyb(void)
 	}
 }
 
-void laskesavut(void)//calculate smokes
+void calculatebullets(void)//calculate smokes
 {
 	int a;
 	float savunnopeus=0.1f;
@@ -1995,7 +1995,7 @@ void laskesavut(void)//calculate smokes
 	}
 }
 
-void savusta(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e)//does smokes and explosion
+void fromsmoke(float koko, float suurenee,bool rotate,float savukesto,float x,float y,float z,int tyyppi,float q,float w,float e)//does smokes and explosion
 {
 	int a,b;	
 	/*if(savuja>=maksimisavuja)//Remove a smokes if there are too many
@@ -2045,7 +2045,7 @@ void savusta(float koko, float suurenee,bool rotate,float savukesto,float x,floa
 
 }
 
-void laskeluodit(void)//calculates bullets
+void calculatebullets(void)//calculates bullets
 {
 	int j,a,q,q2,d;	
 	D3DXVECTOR3 skaalattu;
@@ -2146,7 +2146,7 @@ void laskeluodit(void)//calculates bullets
 		luoti[a].savuvana=luoti[a].savuvana+elapsed*pelinopeus;
 		while(luoti[a].savuvana>0){
 			luoti[a].savuvana=luoti[a].savuvana-ase[luoti[a].aseesta].savuvana;
-			savusta(ase[luoti[a].aseesta].savukoko, 0.0f,true,100,luoti[a].paikka.x,luoti[a].paikka.y,luoti[a].paikka.z,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));			
+			fromsmoke(ase[luoti[a].aseesta].savukoko, 0.0f,true,100,luoti[a].paikka.x,luoti[a].paikka.y,luoti[a].paikka.z,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));			
 		}
 		
 		
@@ -2189,8 +2189,8 @@ void laskeluodit(void)//calculates bullets
 				if(sqrtf(sqr(luoti[a].paikka.x-ukko[q].x)+sqr(luoti[a].paikka.z-ukko[q].z))>luoti[a].nopeus*elapsed*pelinopeus+100)
 				{continue;}
 					
-				if(!viivaviiva(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,ukko[q].x-ukko[q].sektorix*8000-40,ukko[q].z-ukko[q].sektoriz*8000-40,ukko[q].x-ukko[q].sektorix*8000+40,ukko[q].z-ukko[q].sektoriz*8000+40))continue;
-				if(viivaviiva(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,ukko[q].x-ukko[q].sektorix*8000+40,ukko[q].z-ukko[q].sektoriz*8000+40,ukko[q].x-ukko[q].sektorix*8000-40,ukko[q].z-ukko[q].sektoriz*8000-40))
+				if(!linecollidesline(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,ukko[q].x-ukko[q].sektorix*8000-40,ukko[q].z-ukko[q].sektoriz*8000-40,ukko[q].x-ukko[q].sektorix*8000+40,ukko[q].z-ukko[q].sektoriz*8000+40))continue;
+				if(linecollidesline(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,ukko[q].x-ukko[q].sektorix*8000+40,ukko[q].z-ukko[q].sektoriz*8000+40,ukko[q].x-ukko[q].sektorix*8000-40,ukko[q].z-ukko[q].sektoriz*8000-40))
 				{
 					kuljettumatka=(float)sqrtf(sqr(osumax+luoti[a].sektorix[j]*8000-luoti[a].paikkavanha.x)+sqr(osumaz+luoti[a].sektoriz[j]*8000-luoti[a].paikkavanha.z))/(luoti[a].nopeus*elapsed*pelinopeus);
 					korkeus=luoti[a].paikkavanha.y+kuljettumatka*(luoti[a].paikka.y-luoti[a].paikkavanha.y);
@@ -2211,7 +2211,7 @@ void laskeluodit(void)//calculates bullets
 					//blood
 					//if(ase[luoti[a].aseesta].kimmokkeita!=0){
 						for (q2=0; q2<50; q2++){
-							ammu(-6667,-1,luoti[a].kenen,randDouble(0,250),mopot,4,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,luoti[a].q,luoti[a].w,luoti[a].e);
+							shoot(-6667,-1,luoti[a].kenen,randDouble(0,250),mopot,4,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,luoti[a].q,luoti[a].w,luoti[a].e);
 						}					
 					//}
 					
@@ -2233,23 +2233,23 @@ void laskeluodit(void)//calculates bullets
 					//smoke to air
 					if(ase[luoti[a].aseesta].savumaahan!=0)
 						for (q2=0; q2<3; q2++){	
-							savusta(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
 						}
 					//explosion
 					if(ase[luoti[a].aseesta].pommi!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].pommi*30; q2++){
-						ammu(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+						shoot(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
 						for (q2=0; q2<pommeja; q2++){
-							savusta(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,3,0,0,0);							
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osumax+luoti[a].sektorix[j]*8000,luoti[a].paikka.y,osumaz+luoti[a].sektoriz[j]*8000,3,0,0,0);							
 						}
 						quake=10000/luoti[a].distanssi;
-						soita(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 					//sound
 					if(ase[luoti[a].aseesta].pommi==0){
 						if(ase[luoti[a].aseesta].tyyppi!=4)
-						soita(randInt(13,18),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(randInt(13,18),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 
 				}
@@ -2272,36 +2272,36 @@ void laskeluodit(void)//calculates bullets
 			//bounce
 					if(ase[luoti[a].aseesta].kimmokkeita!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].kimmokkeita; q2++){
-							ammu(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,mopot[d].x1,70,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+							shoot(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,mopot[d].x1,70,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}					
 					}
 			//smoke to air
 					if(ase[luoti[a].aseesta].savumaahan!=0)
 						for (q=0; q<3; q++){							
-							savusta(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,mopot[d].x1,70,mopot[d].z1,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,mopot[d].x1,70,mopot[d].z1,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
 						}
 			//explosion					
 					if(ase[luoti[a].aseesta].pommi!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].pommi*30; q2++){
-						ammu(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,3,mopot[d].x1,70,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));						
+						shoot(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,3,mopot[d].x1,70,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));						
 						}
 						for (q2=0; q2<pommeja; q2++){
-							savusta(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,mopot[d].x1,70,mopot[d].z1,3,0,0,0);													
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,mopot[d].x1,70,mopot[d].z1,3,0,0,0);													
 						}
 						quake=10000/luoti[a].distanssi;
-						soita(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 			//sound
 					if(ase[luoti[a].aseesta].pommi==0){
 						if(ase[luoti[a].aseesta].tyyppi!=4)
-						soita(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 			//removing bullet
 					luoti[a].poista=true;
 		}
 
 		//does it collide with lines
-		if(viivaviiva(&osuma,&osuix,&osuiz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,	mopot[d].x6-luoti[a].sektorix[j]*8000,mopot[d].z6-luoti[a].sektoriz[j]*8000,mopot[d].x5-luoti[a].sektorix[j]*8000,mopot[d].z5-luoti[a].sektoriz[j]*8000))
+		if(linecollidesline(&osuma,&osuix,&osuiz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,	mopot[d].x6-luoti[a].sektorix[j]*8000,mopot[d].z6-luoti[a].sektoriz[j]*8000,mopot[d].x5-luoti[a].sektorix[j]*8000,mopot[d].z5-luoti[a].sektoriz[j]*8000))
 
 		{			
 			kuljettumatka=(float)sqrtf(sqr(osuix+luoti[a].sektorix[j]*8000-luoti[a].paikkavanha.x)+sqr(osuiz+luoti[a].sektoriz[j]*8000-luoti[a].paikkavanha.z))/(luoti[a].nopeus*elapsed*pelinopeus);
@@ -2314,7 +2314,7 @@ void laskeluodit(void)//calculates bullets
 			//is it inside a sidepicture
 			for (b=0; b<viivagroup[1].viivat[0].viivaa; b++){
 				for (c=0; c<viivagroup[1].viivat[0].viiva[b].linjaa; c++){									
-					if(viivaviiva(&osuma,&osumax,&osumaz,xa,za,xa+1000,za+1000,	viivagroup[1].viivat[0].viiva[b].piste[c].x1,viivagroup[1].viivat[0].viiva[b].piste[c].z1,viivagroup[1].viivat[0].viiva[b].piste[c].x2,viivagroup[1].viivat[0].viiva[b].piste[c].z2))
+					if(linecollidesline(&osuma,&osumax,&osumaz,xa,za,xa+1000,za+1000,	viivagroup[1].viivat[0].viiva[b].piste[c].x1,viivagroup[1].viivat[0].viiva[b].piste[c].z1,viivagroup[1].viivat[0].viiva[b].piste[c].x2,viivagroup[1].viivat[0].viiva[b].piste[c].z2))
 						wallhits=wallhits+1;
 				}
 			}
@@ -2324,29 +2324,29 @@ void laskeluodit(void)//calculates bullets
 			//bounce
 					if(ase[luoti[a].aseesta].kimmokkeita!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].kimmokkeita; q2++){
-							ammu(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+							shoot(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}					
 					}
 			//smoke to air
 					if(ase[luoti[a].aseesta].savumaahan!=0)
 						for (q=0; q<3; q++){							
-							savusta(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
 						}
 			//explosion				
 					if(ase[luoti[a].aseesta].pommi!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].pommi*30; q2++){
-						ammu(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,3,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));						
+						shoot(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,3,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));						
 						}
 						for (q2=0; q2<pommeja; q2++){
-							savusta(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,3,0,0,0);													
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osuix+luoti[a].sektorix[j]*8000,korkeus,osuiz+luoti[a].sektoriz[j]*8000,3,0,0,0);													
 						}
 						quake=10000/luoti[a].distanssi;
-						soita(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 			//sound
 					if(ase[luoti[a].aseesta].pommi==0){
 						if(ase[luoti[a].aseesta].tyyppi!=4)
-						soita(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 			//removing bullet
 					luoti[a].poista=true;
@@ -2408,7 +2408,7 @@ q=6;
 		for (b=0; b<viivagroup[0].viivat[w[j]].viivaa; b++){
 			for (c=0; c<viivagroup[0].viivat[w[j]].viiva[b].linjaa; c++){
 				
-				if(viivaviiva(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,	viivagroup[0].viivat[w[j]].viiva[b].piste[c].x1,viivagroup[0].viivat[w[j]].viiva[b].piste[c].z1,viivagroup[0].viivat[w[j]].viiva[b].piste[c].x2,viivagroup[0].viivat[w[j]].viiva[b].piste[c].z2))
+				if(linecollidesline(&osuma,&osumax,&osumaz,luoti[a].paikkavanha.x-luoti[a].sektorix[j]*8000,luoti[a].paikkavanha.z-luoti[a].sektoriz[j]*8000,luoti[a].paikka.x-luoti[a].sektorix[j]*8000,luoti[a].paikka.z-luoti[a].sektoriz[j]*8000,	viivagroup[0].viivat[w[j]].viiva[b].piste[c].x1,viivagroup[0].viivat[w[j]].viiva[b].piste[c].z1,viivagroup[0].viivat[w[j]].viiva[b].piste[c].x2,viivagroup[0].viivat[w[j]].viiva[b].piste[c].z2))
 				{
 					wallkulma=-atan2f(viivagroup[0].viivat[w[j]].viiva[b].piste[c].z2-viivagroup[0].viivat[w[j]].viiva[b].piste[c].z1,viivagroup[0].viivat[w[j]].viiva[b].piste[c].x2-viivagroup[0].viivat[w[j]].viiva[b].piste[c].x1);
 					osumax2=osumax+cosf(-luoti[a].q+pi+pi)*-100;
@@ -2420,39 +2420,39 @@ q=6;
 			
 					//bullet hole
 					if(ase[luoti[a].aseesta].monttukuva>-1)
-					savusta(ase[luoti[a].aseesta].savukoko, 0,false,40000,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].monttukuva,-wallkulma,randDouble(0,2*pi),0);
+					fromsmoke(ase[luoti[a].aseesta].savukoko, 0,false,40000,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].monttukuva,-wallkulma,randDouble(0,2*pi),0);
 					//smoke to air
 					if(ase[luoti[a].aseesta].savumaahan!=0)
 						for (q=0; q<3; q++){							
-							savusta(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osumax2+luoti[a].sektorix[j]*8000,korkeus,osumaz2+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto+1000,osumax2+luoti[a].sektorix[j]*8000,korkeus,osumaz2+luoti[a].sektoriz[j]*8000,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
 						}
 					//explosion					
 					if(ase[luoti[a].aseesta].pommi!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].pommi*30; q2++){
-						ammu(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+						shoot(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
 						for (q2=0; q2<pommeja; q2++){
-							savusta(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,3,0,0,0);							
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,3,0,0,0);							
 						}
 						quake=10000/luoti[a].distanssi;
-						soita(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(8,2,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 					//bounce
 					if(ase[luoti[a].aseesta].kimmokkeita>0){
 						for (q2=0; q2<ase[luoti[a].aseesta].kimmokkeita; q2++){
-							ammu(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+							shoot(-6667,-1,luoti[a].kenen,randDouble(0,50),mopot,3,osumax+luoti[a].sektorix[j]*8000,korkeus,osumaz+luoti[a].sektoriz[j]*8000,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
 					}
 					//sound
 					if(ase[luoti[a].aseesta].pommi==0){
 						if(ase[luoti[a].aseesta].tyyppi!=4)
-						soita(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
+						playsound(randInt(9,13),1,osumax+luoti[a].sektorix[j]*8000,osumaz+luoti[a].sektoriz[j]*8000);
 					}
 					
 					
 
 					//light
-				//	valota(osumax2+luoti[a].sektorix*8000,luoti[a].paikka.y,osumaz2+luoti[a].sektoriz*8000);
+				//	setLights(osumax2+luoti[a].sektorix*8000,luoti[a].paikka.y,osumaz2+luoti[a].sektoriz*8000);
 
 
 					luoti[a].poista=true;
@@ -2469,23 +2469,23 @@ q=6;
 						for (q=0; q<3; q++){
 							osumax=osumax+cosf(-luoti[a].q+pi+pi)*-100;
 							osumaz=osumaz+sinf(-luoti[a].q+pi+pi)*-100;
-							savusta(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto,luoti[a].paikka.x,0,luoti[a].paikka.z,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.001f,true,ase[luoti[a].aseesta].savukesto,luoti[a].paikka.x,0,luoti[a].paikka.z,ase[luoti[a].aseesta].savumaahan,randDouble(-luoti[a].q+pi-pi/2,-luoti[a].q+pi+pi/2),(float)fabs(randDouble(0,pi)),randDouble(0,2*pi));
 						}
 			//explosion				
 					if(ase[luoti[a].aseesta].pommi!=0){
 						for (q2=0; q2<ase[luoti[a].aseesta].pommi*30; q2++){
-						ammu(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,luoti[a].paikka.x,luoti[a].paikka.y,luoti[a].paikka.z,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+						shoot(-6667,-1,luoti[a].kenen,randDouble(100,300),mopot,2,luoti[a].paikka.x,luoti[a].paikka.y,luoti[a].paikka.z,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
 						for (q2=0; q2<pommeja; q2++){
-							savusta(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,luoti[a].paikka.x,0,luoti[a].paikka.z,3,0,0,0);							
+							fromsmoke(ase[luoti[a].aseesta].savukoko, 0.004f*ase[luoti[a].aseesta].pommi,true,ase[luoti[a].aseesta].savukesto,luoti[a].paikka.x,0,luoti[a].paikka.z,3,0,0,0);							
 						}
 						quake=10000/luoti[a].distanssi;
-						soita(8,2,luoti[a].paikka.x,luoti[a].paikka.z);
+						playsound(8,2,luoti[a].paikka.x,luoti[a].paikka.z);
 					}
 			//sound
 					if(ase[luoti[a].aseesta].pommi==0){
 						if(ase[luoti[a].aseesta].tyyppi!=4)
-						soita(randInt(9,13),1,luoti[a].paikka.x,luoti[a].paikka.z);
+						playsound(randInt(9,13),1,luoti[a].paikka.x,luoti[a].paikka.z);
 					}
 
 			luoti[a].poista=true;
@@ -2498,7 +2498,7 @@ q=6;
 	
 }
 
-void valota(float x,float y,float z)
+void setLights(float x,float y,float z)
 {
 
 	int q;
@@ -2506,7 +2506,7 @@ void valota(float x,float y,float z)
 		if(q>=maksimivaloja)q=randInt(0,maksimivaloja);//if there is no free light bulbs
 
 		
-	//if(valoja>=maksimivaloja)poistavalo(randInt(0,valoja),&valoja);
+	//if(valoja>=maksimivaloja)removeLight(randInt(0,valoja),&valoja);
 
 			lamppu[q].on=true;				
 			lamppu[q].valo.dltType = D3DLIGHT_POINT;	
@@ -2533,7 +2533,7 @@ void valota(float x,float y,float z)
 }
 
 	
-void ammu(int kohde,int kuka, int kenen,float aika,bikebase *mopot, int aseena,float paikkax,float paikkay,float paikkaz,float suuntax,float suuntay,float suuntaz)//shooting
+void shoot(int kohde,int kuka, int kenen,float aika,bikebase *mopot, int aseena,float paikkax,float paikkay,float paikkaz,float suuntax,float suuntay,float suuntaz)//shooting
 {	
 	int a,b,q;
 	int d=-1;
@@ -2641,10 +2641,10 @@ void ammu(int kohde,int kuka, int kenen,float aika,bikebase *mopot, int aseena,f
 			else luoti[a].nopeus=ase[aseena].nopeus;
 
 			//voices
-			if(ase[luoti[a].aseesta].tyyppi==0)soita(2,1,luoti[a].paikka.x,luoti[a].paikka.z);
-			if(ase[luoti[a].aseesta].tyyppi==1)soita(5,1,luoti[a].paikka.x,luoti[a].paikka.z);
-			if(ase[luoti[a].aseesta].tyyppi==2)soita(4,1,luoti[a].paikka.x,luoti[a].paikka.z);
-			if(ase[luoti[a].aseesta].tyyppi==3)soita(3,1,luoti[a].paikka.x,luoti[a].paikka.z);
+			if(ase[luoti[a].aseesta].tyyppi==0)playsound(2,1,luoti[a].paikka.x,luoti[a].paikka.z);
+			if(ase[luoti[a].aseesta].tyyppi==1)playsound(5,1,luoti[a].paikka.x,luoti[a].paikka.z);
+			if(ase[luoti[a].aseesta].tyyppi==2)playsound(4,1,luoti[a].paikka.x,luoti[a].paikka.z);
+			if(ase[luoti[a].aseesta].tyyppi==3)playsound(3,1,luoti[a].paikka.x,luoti[a].paikka.z);
 
 
 			//speed=random
@@ -2667,10 +2667,10 @@ void ammu(int kohde,int kuka, int kenen,float aika,bikebase *mopot, int aseena,f
 
 			//äänet //a= vähän epävarma
 	if(d>=0){
-			if(ase[luoti[d].aseesta].tyyppi==0)soita(2,1,luoti[d].paikka.x,luoti[d].paikka.z);
-			if(ase[luoti[d].aseesta].tyyppi==1)soita(5,1,luoti[d].paikka.x,luoti[d].paikka.z);
-			if(ase[luoti[d].aseesta].tyyppi==2)soita(4,1,luoti[d].paikka.x,luoti[d].paikka.z);
-			if(ase[luoti[d].aseesta].tyyppi==3)soita(3,1,luoti[d].paikka.x,luoti[d].paikka.z);			
+			if(ase[luoti[d].aseesta].tyyppi==0)playsound(2,1,luoti[d].paikka.x,luoti[d].paikka.z);
+			if(ase[luoti[d].aseesta].tyyppi==1)playsound(5,1,luoti[d].paikka.x,luoti[d].paikka.z);
+			if(ase[luoti[d].aseesta].tyyppi==2)playsound(4,1,luoti[d].paikka.x,luoti[d].paikka.z);
+			if(ase[luoti[d].aseesta].tyyppi==3)playsound(3,1,luoti[d].paikka.x,luoti[d].paikka.z);			
 	}
 
 	
@@ -2819,7 +2819,7 @@ void aja(bikebase *mopot)
 	mopot->savuaika=mopot->savuaika+elapsed*pelinopeus*(mopot->kulmakeuliminen+0.1f);
 	while(mopot->savuaika>=0){
 	mopot->savuaika=mopot->savuaika-4.0f;
-	savusta(1.0f,-0.01f,true,randDouble(200,400),mopot->x2+randDouble(-10,10)-cosf(mopot->suunta)*15,randDouble(0,30),mopot->z2+randDouble(-10,10)-sinf(mopot->suunta)*15,4,randDouble(0,2*pi),0,randDouble(0,2*pi));		
+	fromsmoke(1.0f,-0.01f,true,randDouble(200,400),mopot->x2+randDouble(-10,10)-cosf(mopot->suunta)*15,randDouble(0,30),mopot->z2+randDouble(-10,10)-sinf(mopot->suunta)*15,4,randDouble(0,2*pi),0,randDouble(0,2*pi));		
 	}
 	
 	//turning front wheel
@@ -2905,13 +2905,13 @@ void aja(bikebase *mopot)
 	mopot->suuliekki=false;
 	//shooting
 	if(mopot->one)
-		ammu(mopot->valittuukko,-1,mopot->numero,-1,mopot,0,NULL,NULL,NULL,NULL,NULL,NULL);
+		shoot(mopot->valittuukko,-1,mopot->numero,-1,mopot,0,NULL,NULL,NULL,NULL,NULL,NULL);
 	if(mopot->two)
-		ammu(mopot->valittuukko,-1,mopot->numero,-1,mopot,1,NULL,NULL,NULL,NULL,NULL,NULL);
+		shoot(mopot->valittuukko,-1,mopot->numero,-1,mopot,1,NULL,NULL,NULL,NULL,NULL,NULL);
 	if(mopot->three)
-		ammu(mopot->valittuukko,-1,mopot->numero,-1,mopot,2,NULL,NULL,NULL,NULL,NULL,NULL);
+		shoot(mopot->valittuukko,-1,mopot->numero,-1,mopot,2,NULL,NULL,NULL,NULL,NULL,NULL);
 	if(mopot->four)
-		ammu(mopot->valittuukko,-1,mopot->numero,-1,mopot,3,NULL,NULL,NULL,NULL,NULL,NULL);
+		shoot(mopot->valittuukko,-1,mopot->numero,-1,mopot,3,NULL,NULL,NULL,NULL,NULL,NULL);
 	
 
 	//sectors
@@ -2953,7 +2953,7 @@ bool Render(void)
 		break;
 		   }	
 	case 2:{
-		render_varikko();
+		render_workshop();
 		break;
 		   }
 	case 3:
@@ -2977,22 +2977,22 @@ bool Render(void)
 
 	if(plusmiinus!=0){
 		CHAR t[100];
-		kirjota(10,10,0,"debug mode:");	
+		rendertext(10,10,0,"debug mode:");	
 
 		ltoa(bug1,t,10);
-		kirjota(10,25,0,t);
+		rendertext(10,25,0,t);
 
 		ltoa(bug2,t,10);
-		kirjota(10,40,0,t);
+		rendertext(10,40,0,t);
 		
 		ltoa(bug3,t,10);
-		kirjota(10,55,0,t);
+		rendertext(10,55,0,t);
 
 		ltoa((long)(plusmiinus*1000),t,10);
-		kirjota(10,70,0,t);
+		rendertext(10,70,0,t);
 			
 		ltoa((long)(1000/elapsed),t,10);
-		kirjota(10,85,0,t);	
+		rendertext(10,85,0,t);	
 	}
 
 	
@@ -3001,7 +3001,7 @@ bool Render(void)
 	return true;
 }
 
-void laskeosumat(void)//collisions
+void calculateCollisions(void)//collisions
 {
 	bool osuma,osuma2;
 	float osumax,osumaz;
@@ -3042,8 +3042,8 @@ void laskeosumat(void)//collisions
 	a=maps[mapz][mapx];
 		for (b=0; b<viivagroup[0].viivat[a].viivaa; b++){
 			for (c=0; c<viivagroup[0].viivat[a].viiva[b].linjaa; c++){	
-				if(viivaviiva(&osuma,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,kx-mapx*8000,kz-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))				
-					//||(viivaviiva(&osuma,&osumax,&osumaz,mtempx1-mapx*8000,mtempz1-mapz*8000,mtempx2-mapx*8000,mtempz2-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2)))
+				if(linecollidesline(&osuma,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,kx-mapx*8000,kz-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))				
+					//||(linecollidesline(&osuma,&osumax,&osumaz,mtempx1-mapx*8000,mtempz1-mapz*8000,mtempx2-mapx*8000,mtempz2-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2)))
 				{
 					//mopot[d].nopeus=-mopot[d].nopeus/3;
 					
@@ -3051,11 +3051,11 @@ void laskeosumat(void)//collisions
 					//sparks
 						if(mopot[d].timesparks<0){
 							for (q=0; q<70; q++){							
-								ammu(-6667,-1,2,randDouble(100,200),mopot,3,osumax+mapx*8000+randDouble(-20,20),50+randDouble(-20,20),osumaz+mapz*8000+randDouble(-20,20),randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+								shoot(-6667,-1,2,randDouble(100,200),mopot,3,osumax+mapx*8000+randDouble(-20,20),50+randDouble(-20,20),osumaz+mapz*8000+randDouble(-20,20),randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 							}
 						mopot[d].timesparks=mopot[d].timesparks+randDouble(100,500);
 						}
-					soita(randInt(6,8),(float)fabs(mopot[d].nopeus/3.2f),mopot[d].x1,mopot[d].z1);
+					playsound(randInt(6,8),(float)fabs(mopot[d].nopeus/3.2f),mopot[d].x1,mopot[d].z1);
 
 					mopot[d].x1=mopot[d].x3;
 					mopot[d].y1=mopot[d].y3;
@@ -3105,7 +3105,7 @@ void laskeosumat(void)//collisions
 						//re check
 						for (b2=0; b2<viivagroup[0].viivat[a].viivaa; b2++){
 						for (c2=0; c2<viivagroup[0].viivat[a].viiva[b2].linjaa; c2++){	
-						if(viivaviiva(&osuma2,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,kx-mapx*8000,kz-mapz*8000,	viivagroup[0].viivat[a].viiva[b2].piste[c2].x1,viivagroup[0].viivat[a].viiva[b2].piste[c2].z1,viivagroup[0].viivat[a].viiva[b2].piste[c2].x2,viivagroup[0].viivat[a].viiva[b2].piste[c2].z2))
+						if(linecollidesline(&osuma2,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,kx-mapx*8000,kz-mapz*8000,	viivagroup[0].viivat[a].viiva[b2].piste[c2].x1,viivagroup[0].viivat[a].viiva[b2].piste[c2].z1,viivagroup[0].viivat[a].viiva[b2].piste[c2].x2,viivagroup[0].viivat[a].viiva[b2].piste[c2].z2))
 						{
 							mopot[d].x1=mopot[d].x3;
 							mopot[d].y1=mopot[d].y3;
@@ -3146,9 +3146,9 @@ void laskeosumat(void)//collisions
 	a=maps[mapz][mapx];
 	for (b=0; b<viivagroup[0].viivat[a].viivaa; b++){
 			for (c=0; c<viivagroup[0].viivat[a].viiva[b].linjaa; c++){	
-				if(viivaviiva(&osuma,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,mopot[d].x1-mapx*8000+80000,mopot[d].z1-mapz*8000+80000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
+				if(linecollidesline(&osuma,&osumax,&osumaz,mopot[d].x1-mapx*8000,mopot[d].z1-mapz*8000,mopot[d].x1-mapx*8000+80000,mopot[d].z1-mapz*8000+80000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
 					wallhits=wallhits+1;
-				if(viivaviiva(&osuma,&osumax,&osumaz,mopot[d].x2-mapx*8000,mopot[d].z2-mapz*8000,mopot[d].x2-mapx*8000+80000,mopot[d].z2-mapz*8000+80000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
+				if(linecollidesline(&osuma,&osumax,&osumaz,mopot[d].x2-mapx*8000,mopot[d].z2-mapz*8000,mopot[d].x2-mapx*8000+80000,mopot[d].z2-mapz*8000+80000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
 					wallhits2=wallhits2+1;
 			}
 	}
@@ -3181,7 +3181,7 @@ void laskeosumat(void)//collisions
 				
 }
 
-bool luekuvat(void)
+bool readpictures(void)
 {
 	DDCOLORKEY color;
 	int q;
@@ -3328,7 +3328,7 @@ bool deinitkeyb(void)
 }
 
 
-void poistaobj(obj *kohde, int indeksi)
+void removeobj(obj *kohde, int indeksi)
 {
 	for (int a=0; a<indeksi; a++)
 	{
@@ -3362,17 +3362,17 @@ void CleanUp(void)
 	}
 
 	
-	poistaobj(mallit[0].malli,	objnum0	);
-	poistaobj(mallit[1].malli,	objnum1	);
-	poistaobj(mallit[2].malli,	objnum2	);
-	poistaobj(mallit[3].malli,	objnum3	);
-	poistaobj(mallit[4].malli,	objnum4	);
-	poistaobj(mallit[5].malli,	objnum5	);
-	poistaobj(mallit[6].malli,	objnum6	);
-	poistaobj(mallit[7].malli,	objnum7	);
-	poistaobj(mallit[8].malli,	objnum8	);
-	poistaobj(mallit[9].malli,	objnum9	);
-	poistaobj(mallit[10].malli,	objnum10);
+	removeobj(mallit[0].malli,	objnum0	);
+	removeobj(mallit[1].malli,	objnum1	);
+	removeobj(mallit[2].malli,	objnum2	);
+	removeobj(mallit[3].malli,	objnum3	);
+	removeobj(mallit[4].malli,	objnum4	);
+	removeobj(mallit[5].malli,	objnum5	);
+	removeobj(mallit[6].malli,	objnum6	);
+	removeobj(mallit[7].malli,	objnum7	);
+	removeobj(mallit[8].malli,	objnum8	);
+	removeobj(mallit[9].malli,	objnum9	);
+	removeobj(mallit[10].malli,	objnum10);
 	
 	delete(tausta);
 	//RELEASE(font1);
@@ -3493,7 +3493,7 @@ BOOL drawfast(obj *tavara)
 
 }
 
-void laskeukot(void) //calculatecharacters
+void calculatecharacters(void) //calculatecharacters
 {
 	int q,mapx,mapz,wallhits;
 	int a,b,c;
@@ -3664,8 +3664,8 @@ void laskeukot(void) //calculatecharacters
 					if(ukko[q].aseena!=-1){					
 						while(ukko[q].asetime>=0){
 							ukko[q].asetime=ukko[q].asetime-ase[ukko[q].aseena].ampumanopeus;				
-							ammu(-1,q,-1,-1,mopot,ukko[q].aseena,ukko[q].x+cos*33,92*ukko[q].korkeus,ukko[q].z+sin*33,-ukko[q].suunta,randDouble(-0.03f,0.03f),randDouble(-0.03f,0.03f));
-							//ammu(q,2,-1,mopot,ukko[q].aseena,ukko[q].x+cos*33,85,ukko[q].z+sin*33,-ukko[q].suunta,0,0); //shoot
+							shoot(-1,q,-1,-1,mopot,ukko[q].aseena,ukko[q].x+cos*33,92*ukko[q].korkeus,ukko[q].z+sin*33,-ukko[q].suunta,randDouble(-0.03f,0.03f),randDouble(-0.03f,0.03f));
+							//shoot(q,2,-1,mopot,ukko[q].aseena,ukko[q].x+cos*33,85,ukko[q].z+sin*33,-ukko[q].suunta,0,0); //shoot
 						}
 					}
 			}
@@ -3698,7 +3698,7 @@ void laskeukot(void) //calculatecharacters
 			wallhits=0;
 			for (b=0; b<viivagroup[0].viivat[a].viivaa; b++){
 					for (c=0; c<viivagroup[0].viivat[a].viiva[b].linjaa; c++){	
-						if(viivaviiva(&osuma,&osumax,&osumaz,ukko[q].x+cos*100*ukko[q].menossa-mapx*8000,ukko[q].z+sin*100*ukko[q].menossa-mapz*8000,ukko[q].x+cos*100*ukko[q].menossa+8000-mapx*8000,ukko[q].z+sin*100*ukko[q].menossa-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
+						if(linecollidesline(&osuma,&osumax,&osumaz,ukko[q].x+cos*100*ukko[q].menossa-mapx*8000,ukko[q].z+sin*100*ukko[q].menossa-mapz*8000,ukko[q].x+cos*100*ukko[q].menossa+8000-mapx*8000,ukko[q].z+sin*100*ukko[q].menossa-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
 							wallhits=wallhits+1;
 					}
 			}
@@ -3774,7 +3774,7 @@ void laskeukot(void) //calculatecharacters
 							wallhits=0;
 							for (b=0; b<viivagroup[0].viivat[a].viivaa; b++){
 									for (c=0; c<viivagroup[0].viivat[a].viiva[b].linjaa; c++){	
-										if(viivaviiva(&osuma,&osumax,&osumaz,ukko[q].x+cos*100-mapx*8000,ukko[q].z+sin*100-mapz*8000,ukko[q].x+cos*100+8000-mapx*8000,ukko[q].z+sin*100-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
+										if(linecollidesline(&osuma,&osumax,&osumaz,ukko[q].x+cos*100-mapx*8000,ukko[q].z+sin*100-mapz*8000,ukko[q].x+cos*100+8000-mapx*8000,ukko[q].z+sin*100-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
 											wallhits=wallhits+1;
 									}
 							}
@@ -3814,7 +3814,7 @@ void laskeukot(void) //calculatecharacters
 
 	}
 
-void renderukot(void){ //render characters
+void rendercharacters(void){
 	int q,a,d;
 	
 	
@@ -4040,8 +4040,8 @@ void renderukot(void){ //render characters
 }
 
 //font means after ammount of letters text is cut to lines
-//void kirjota(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1)
-void kirjota(INT x, INT y, INT fontti,CHAR teksti[100]) //write
+//void rendertext(INT x, INT y, INT fontti,CHAR teksti[100],LPDIRECTDRAWSURFACE7 pinta,LPDIRECTDRAWSURFACE7 font1)
+void rendertext(INT x, INT y, INT fontti,CHAR teksti[100]) //write
 {
 	//RECT loota; //boxxy
 	INT nume;
@@ -4310,7 +4310,7 @@ void render_game(void){//just renders some moped driving.
 	if(quake>0)quake=quake-0.03f*elapsed*pelinopeus;//earthquake
 	
 	if(pelivaihe2==0){
-		laskeosumat();//does mopeds collide with anything
+		calculateCollisions();//does mopeds collide with anything
 		laskemopot();//mopeds are rollin //calculatemopeds
 		for (d=0; d<mopoja; d++){
 			if(mopot[d].pois)continue;
@@ -4413,9 +4413,9 @@ void render_game(void){//just renders some moped driving.
 	luoteja=0;
 	if(pelivaihe2==0){
 		svolume(voices[1],DSBVOLUME_MAX, options[1]&&SOUNDS_LOADED);
-		laskeukot();
-		laskeluodit();
-		laskesavut();
+		calculatecharacters();
+		calculatebullets();
+		calculatebullets();
 		laskemissiot(&mopot[0]);
 	}
 
@@ -4430,16 +4430,16 @@ void render_game(void){//just renders some moped driving.
 					//smoke to air
 					if(ase[1].savumaahan!=0)
 						for (q=0; q<3; q++){	
-							savusta(1.0f,0.001f,true,3000,mopot[0].x1,60,mopot[0].z1,ase[1].savumaahan,randDouble(pi,-pi),randDouble(pi,-pi),randDouble(pi,-pi));
+							fromsmoke(1.0f,0.001f,true,3000,mopot[0].x1,60,mopot[0].z1,ase[1].savumaahan,randDouble(pi,-pi),randDouble(pi,-pi),randDouble(pi,-pi));
 						}
 					//explosion
 					if(ase[1].pommi!=0){
 						quake=3;
 						for (q=0; q<100; q++){
-						ammu(-6667,-1,1,randDouble(100,300),mopot,2,mopot[0].x1,60,mopot[0].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+						shoot(-6667,-1,1,randDouble(100,300),mopot,2,mopot[0].x1,60,mopot[0].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
-							savusta(1.0f,0.01f,true,3000,mopot[0].x1,60,mopot[0].z1,3,0,0,0);													
-						soita(8,1,mopot[0].x1,mopot[0].z1);
+							fromsmoke(1.0f,0.01f,true,3000,mopot[0].x1,60,mopot[0].z1,3,0,0,0);													
+						playsound(8,1,mopot[0].x1,mopot[0].z1);
 					}
 
 
@@ -4962,7 +4962,7 @@ void render_game(void){//just renders some moped driving.
 	}
 
 	m_pDevice->LightEnable(1, FALSE);
-	renderukot();
+	rendercharacters();
 	m_pDevice->LightEnable(1, TRUE);
 
 	//camera angle
@@ -5019,7 +5019,7 @@ void render_game(void){//just renders some moped driving.
 	matriisi->LoadIdentity();
 	m_pDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, *matriisi->GetTop());		
 	m_pDevice->ComputeSphereVisibility(keskipiste,radius,maksimisavuja,0,visible);//remember SetTransform
-	m_pDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);//ei kirjota z-bufferiin, jotta savut olisi läpinäkyvät
+	m_pDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,FALSE);//ei rendertext z-bufferiin, jotta savut olisi läpinäkyvät
 	//m_pDevice->SetRenderState(D3DRENDERSTATE_ZENABLE,FALSE);	
 
 	int kappaletta=0;//ammount of bullet holes
@@ -5295,28 +5295,28 @@ void render_game(void){//just renders some moped driving.
 			strcpy(rivi,"time left ");
 			itoa((int)mopot[0].mission.aika/1000,temprivi,10);
 			strcat(rivi,temprivi);
-			kirjota((int)(1024*0.03f),(int)(768*0.95f-30),0,rivi);		
+			rendertext((int)(1024*0.03f),(int)(768*0.95f-30),0,rivi);		
 		}
 		
 		
 		//mission brief text
-			kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,mopot[0].mission.shortbriefing);
+			rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,mopot[0].mission.shortbriefing);
 		/*//go and kill some one
 			if(mopot[0].mission.tyyppi==0){
 				if(mopot[0].mission.alatyyppi==0){
-					kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"kill him");	
+					rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"kill him");	
 				}
 				if(mopot[0].mission.alatyyppi==1){
-					kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"kill him");
+					rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"kill him");
 				}
 			}
 			//taxi
 			if(mopot[0].mission.tyyppi==1){
 				if(mopot[0].mission.alatyyppi==0){
-					kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"take me there");
+					rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"take me there");
 				}
 				if(mopot[0].mission.alatyyppi==1){
-					kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"take me there");
+					rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"take me there");
 				}
 			}
 */
@@ -5325,15 +5325,15 @@ void render_game(void){//just renders some moped driving.
 	m_pDevice->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE,TRUE);
 
 	if(mopot[0].mission.suoritettu==1){		
-			kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"mission accomplished");		
+			rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"mission accomplished");		
 	}
 	
 	if(mopot[0].mission.suoritettu==2){		
-			kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"mission failed");		
+			rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"mission failed");		
 	}
 	
 	if(mopot[0].mission.suoritettu==3){		
-			kirjota((int)(1024*0.03f),(int)(768*0.95f-15),0,"no mission");		
+			rendertext((int)(1024*0.03f),(int)(768*0.95f-15),0,"no mission");		
 	}
 
 	
@@ -5347,33 +5347,33 @@ void render_game(void){//just renders some moped driving.
 
 	//end demo
 	if(pelivaihe2==1){
-		kirjota((int)(1024*0.08f),(int)(768*0.15f),60,missioninfo[20]);
+		rendertext((int)(1024*0.08f),(int)(768*0.15f),60,missioninfo[20]);
 	}
 	//pause
 	if(pelivaihe2==2){
 		svolume(voices[1],DSBVOLUME_MIN, options[1]&&SOUNDS_LOADED);
-		kirjota((int)(1024*0.15f),(int)(768*0.48f+15*0),70,"Bikez II is now paused");
-		kirjota((int)(1024*0.15f),(int)(768*0.48f+15*1),70,"esc to return to game");
-		kirjota((int)(1024*0.15f),(int)(768*0.48f+15*2),70,"f9 to exit");
+		rendertext((int)(1024*0.15f),(int)(768*0.48f+15*0),70,"Bikez II is now paused");
+		rendertext((int)(1024*0.15f),(int)(768*0.48f+15*1),70,"esc to return to game");
+		rendertext((int)(1024*0.15f),(int)(768*0.48f+15*2),70,"f9 to exit");
 	}
 	//beginning demo
 	if(pelivaihe2==3){
-		kirjota((int)(1024*0.08f),(int)(768*0.15f),60,"You are a mercenary biker in a near future dark city. The local criminal faction, Bikez, has just signed a contract with you about completing a series of missions including a whole lot of killing and blood...");
-		kirjota((int)(1024*0.08f),(int)(768*0.24f),60,"If you are new to Bikez press Enter to learn the basics. Otherwise press Esc to start playing.");
+		rendertext((int)(1024*0.08f),(int)(768*0.15f),60,"You are a mercenary biker in a near future dark city. The local criminal faction, Bikez, has just signed a contract with you about completing a series of missions including a whole lot of killing and blood...");
+		rendertext((int)(1024*0.08f),(int)(768*0.24f),60,"If you are new to Bikez press Enter to learn the basics. Otherwise press Esc to start playing.");
 	}
 	//beginning demo
 	if(pelivaihe2==4){
-		kirjota((int)(1024*0.08f),(int)(768*0.15f),60,"Keys: Put your right hand on the arrow keys and your left hand so that your little finger is on number 1 and your index finger on number 4. Use 5 to slow the game down. Shift between bird´s eye view and following camera by pressing the tab key. Space is hand brake.");
-		kirjota((int)(1024*0.08f),(int)(768*0.30f),60,"When you are low on energy, in need of a weapons upgrade, or need to save your game, you should find a Bikez warehouse. These warehouses are brownish buildings with a Bikez sign. Enter below the sign.");
-		kirjota((int)(1024*0.08f),(int)(768*0.43f),60,"To get a mission, you must find a man that looks like your character. After finding the guy you have to stop by him, a green circle is lit under him if everything is right. Then press enter to get a mission.");
+		rendertext((int)(1024*0.08f),(int)(768*0.15f),60,"Keys: Put your right hand on the arrow keys and your left hand so that your little finger is on number 1 and your index finger on number 4. Use 5 to slow the game down. Shift between bird´s eye view and following camera by pressing the tab key. Space is hand brake.");
+		rendertext((int)(1024*0.08f),(int)(768*0.30f),60,"When you are low on energy, in need of a weapons upgrade, or need to save your game, you should find a Bikez warehouse. These warehouses are brownish buildings with a Bikez sign. Enter below the sign.");
+		rendertext((int)(1024*0.08f),(int)(768*0.43f),60,"To get a mission, you must find a man that looks like your character. After finding the guy you have to stop by him, a green circle is lit under him if everything is right. Then press enter to get a mission.");
 	}
 	//is dead
 	if(pelivaihe2==5){
 		luoti[0].poista=true;
 		pelinopeus=0.2f;
-		laskesavut();
-		laskeluodit();
-		kirjota((int)(1024*0.15f),(int)(768*0.48f+15*0),70,"You are dead. All is lost.");
+		calculatebullets();
+		calculatebullets();
+		rendertext((int)(1024*0.15f),(int)(768*0.48f+15*0),70,"You are dead. All is lost.");
 	}
 
 	//press enter to ask for a mission
@@ -5383,10 +5383,10 @@ void render_game(void){//just renders some moped driving.
 		if(!ukko[mopot[0].nearestukko].puoli==0)
 		{
 			if(fabs(mopot[0].nopeus)<0.7f)
-			kirjota((int)(1024*0.03f),(int)(768*0.95f),0,"press enter");		
+			rendertext((int)(1024*0.03f),(int)(768*0.95f),0,"press enter");		
 			
 			if(fabs(mopot[0].nopeus)>=0.7f)
-			kirjota((int)(1024*0.03f),(int)(768*0.95f),0,"slow down");
+			rendertext((int)(1024*0.03f),(int)(768*0.95f),0,"slow down");
 		}
 	}
 	//energy meter
@@ -5420,7 +5420,7 @@ void render_game(void){//just renders some moped driving.
 
 		//money		
 			itoa((int)mopot[0].rahat,rivi,10);
-			kirjota(896,710,0,rivi);
+			rendertext(896,710,0,rivi);
 
 /*
 	//energy meter
@@ -5636,17 +5636,17 @@ void render_mission(void){//render mission briefing
 			m_pDevice->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE ,FALSE);
 		
 
-			kirjota((int)(1024*0.03f),(int)(768*0.90f),0,"enter to continue");	//write	
-			//kirjota((int)(1024*0.03f),(int)(768*0.90f+13),0,"esc to reject");		
+			rendertext((int)(1024*0.03f),(int)(768*0.90f),0,"enter to continue");	//write	
+			//rendertext((int)(1024*0.03f),(int)(768*0.90f+13),0,"esc to reject");		
 			if(missionantovaihe==1){
-				kirjota((int)(1024*0.03f),(int)(768*0.10f+13*0),50,mopot->mission_arvottu.rivi0);				
+				rendertext((int)(1024*0.03f),(int)(768*0.10f+13*0),50,mopot->mission_arvottu.rivi0);				
 				strcpy(temprivi,"The pay is: ");
 				itoa(mopot->mission_arvottu.palkka,rivi,10);
 				strcat(temprivi,rivi);
-				kirjota((int)(1024*0.03f),(int)(768*0.5f),50,temprivi);
+				rendertext((int)(1024*0.03f),(int)(768*0.5f),50,temprivi);
 			}
 			if(missionantovaihe==0){
-				kirjota((int)(1024*0.03f),(int)(768*0.10f+13*0),50,missioninfo[mopot->level]);		
+				rendertext((int)(1024*0.03f),(int)(768*0.10f+13*0),50,missioninfo[mopot->level]);		
 			}
 
 			
@@ -5752,7 +5752,7 @@ fa:
 		int wallhits=0;
 		for (b=0; b<viivagroup[0].viivat[a].viivaa; b++){
 				for (c=0; c<viivagroup[0].viivat[a].viiva[b].linjaa; c++){						
-					if(viivaviiva(&osuma,&osumax,&osumaz,*xa-mapx*8000,*za-mapz*8000,*xa+10000-mapx*8000,*za+10000-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
+					if(linecollidesline(&osuma,&osumax,&osumaz,*xa-mapx*8000,*za-mapz*8000,*xa+10000-mapx*8000,*za+10000-mapz*8000,	viivagroup[0].viivat[a].viiva[b].piste[c].x1,viivagroup[0].viivat[a].viiva[b].piste[c].z1,viivagroup[0].viivat[a].viiva[b].piste[c].x2,viivagroup[0].viivat[a].viiva[b].piste[c].z2))
 						wallhits=wallhits+1;
 				}
 		}
@@ -6058,16 +6058,16 @@ void laskemopot(void){ //calculate mopeds
 					//smoke to air
 					if(ase[1].savumaahan!=0)
 						for (q=0; q<3; q++){	
-							savusta(1.0f,0.001f,true,3000,mopot[d].x1,60,mopot[d].z1,ase[1].savumaahan,randDouble(pi,-pi),randDouble(pi,-pi),randDouble(pi,-pi));
+							fromsmoke(1.0f,0.001f,true,3000,mopot[d].x1,60,mopot[d].z1,ase[1].savumaahan,randDouble(pi,-pi),randDouble(pi,-pi),randDouble(pi,-pi));
 						}
 					//explosion
 					if(ase[1].pommi!=0){
 						quake=3;
 						for (q2=0; q2<100; q2++){
-						ammu(-6667,-1,1,randDouble(100,300),mopot,3,mopot[d].x1,60,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
+						shoot(-6667,-1,1,randDouble(100,300),mopot,3,mopot[d].x1,60,mopot[d].z1,randDouble(-pi,pi),randDouble(-pi,pi),randDouble(-pi,pi));
 						}
 						//for (q2=0; q2<1; q2++){
-							savusta(1.0f,0.01f,true,4000,mopot[d].x1,60,mopot[d].z1,3,0,0,0);							
+							fromsmoke(1.0f,0.01f,true,4000,mopot[d].x1,60,mopot[d].z1,3,0,0,0);							
 						//}
 					}
 		}
@@ -6303,7 +6303,7 @@ void arvomopo(int d){ //randomize moped
 
 }
 
-void render_varikko(void){//render workshop
+void render_workshop(void){//render workshop
 	RECT     rcSource, rcDest, loota;
 	int a,b;
 	int valittua,valittub,valittuc;
@@ -6413,12 +6413,12 @@ void render_varikko(void){//render workshop
 			//strcpy(rivi,":");
 			//itoa((int)mopot[0].mission.aika/1000,rivi,10);
 			//strcat(rivi,temprivi);
-			kirjota((212+b*180+60),(125+a*29+10),0,rivi);
+			rendertext((212+b*180+60),(125+a*29+10),0,rivi);
 						
 		}
 		//price
 		itoa((int)ase[mopot[0].ase[a]].hinta,rivi,10);
-		kirjota((212+a*180+50),(125+4*29+10),0,rivi);
+		rendertext((212+a*180+50),(125+4*29+10),0,rivi);
 	}
 	//repair moped 
 	if((mopot[0].korjaamolla2==false)&&(mopot[0].korjaamolla==true)){
@@ -6430,14 +6430,14 @@ void render_varikko(void){//render workshop
 
 	//money
 		itoa((int)mopot[0].rahat,rivi,10);
-		kirjota((200),(125+5*29+10),0,rivi);
+		rendertext((200),(125+5*29+10),0,rivi);
 
 	//moped fixed
 		if(korjaussumma>0){
 			strcpy(rivi,"bike repaired for ");
 			itoa((int)korjaussumma,temprivi,10);
 			strcat(rivi,temprivi);
-			kirjota((190),(76),0,rivi);
+			rendertext((190),(76),0,rivi);
 		}
 
 	//key is pressed. //translator note: could be understood as "a brat is f*cked". 
@@ -6564,7 +6564,7 @@ void render_varikko(void){//render workshop
 				}
 				//key is pressed one time
 				if ((mousestate2.rgbButtons[0])&&(!mousestate.rgbButtons[0])){
-					luesavet();//read saves
+					readsaves();//read saves
 					pelivaihe=4;
 					pelivaihe2=1;
 					pelivaihe_oli=2;
@@ -6592,7 +6592,7 @@ void render_varikko(void){//render workshop
 				}
 				//key is pressed one time
 				if ((mousestate2.rgbButtons[0])&&(!mousestate.rgbButtons[0])){
-					luesavet();//read saves
+					readsaves();//read saves
 					pelivaihe2=2;
 					pelivaihe=4;
 					tallennettu=false;
@@ -6818,7 +6818,7 @@ void readkey_game(void){
 				}
 }
 
-void luesavet(void){ // read saves
+void readsaves(void){ // read saves
 	int		i;
 	char	name[256];
 	FILE	*f;
@@ -6840,7 +6840,7 @@ void luesavet(void){ // read saves
 		fclose (f);
 	}
 }
-void peli_lataa(void){//load game
+void game_load(void){//load game
 	FILE *fil;
 		int q,d,a,b;
 		char temprivi[300];
@@ -6859,7 +6859,7 @@ void peli_lataa(void){//load game
 
 	
 
-		peli_uusi();
+		game_new();
 		korjaussumma=0;
 		mopot[0].korjaamolla2=false;
 		mopot[0].korjaamolla=true;
@@ -6987,7 +6987,7 @@ void peli_lataa(void){//load game
 
 
 }
-void peli_tallenna(void){//save game
+void game_save(void){//save game
 	
 		FILE *fil;
 		int q,a,b;
@@ -7143,7 +7143,7 @@ void render_menu(void){//renders the menu
 					kuvia[4],
 					&rcSource,0  ,NULL);
 
-	kirjota(340,738,0,"game version 1.21");
+	rendertext(340,738,0,"game version 1.21");
 
 	
 	if(pelivaihe2==0){//headmenu
@@ -7226,7 +7226,7 @@ void render_menu(void){//renders the menu
 					if(pelivaihe2==6)strcpy(rivi,"Set Keys");
 
 					if((pelivaihe2==1)||(pelivaihe2==2)||(pelivaihe2==3)||(pelivaihe2==4)||(pelivaihe2==6))
-					kirjota((int)(tex),(int)(tey),0,rivi);
+					rendertext((int)(tex),(int)(tey),0,rivi);
 	
 	
 
@@ -7234,7 +7234,7 @@ void render_menu(void){//renders the menu
 	//menuvalittu=-1;
 
 	for (q=0; q<menuja[pelivaihe2]; q++){
-		kirjota(210,220+q*space,0,menuteksti[q]);
+		rendertext(210,220+q*space,0,menuteksti[q]);
 		rcDest.top = (210+q*space)*SCREEN_HEIGHT/768; 
 		rcDest.left = (205)*SCREEN_WIDTH/1024;
 		rcDest.bottom = rcDest.top+space*SCREEN_HEIGHT/768; 
@@ -7246,15 +7246,15 @@ void render_menu(void){//renders the menu
 		}
 		
 		if((q==menuvalittu)&&((pelivaihe2!=4)||(q>10)))
-			kirjota(210,220+q*space,0,menuteksti[q]);
+			rendertext(210,220+q*space,0,menuteksti[q]);
 		if(((q<10)&&(q>0))&&((pelivaihe2==4)&&(options[q])))
-			kirjota(210,220+q*space,0,menuteksti[q]);
+			rendertext(210,220+q*space,0,menuteksti[q]);
 		
 	//cursor
 		if((menuvalittu<11)&&(menuvalittu>0))
 		{
 				if((pelivaihe2==3)&&(menuvalittu==q)&&(kursori<0)&&(kirjaintanimessa<49))
-				kirjota(int(210+(kirjaintanimessa)*12.5f),(220+q*space),0,":");
+				rendertext(int(210+(kirjaintanimessa)*12.5f),(220+q*space),0,":");
 		}
 	}
 
@@ -7402,7 +7402,7 @@ void render_menu(void){//renders the menu
 	
 }
 
-void peli_uusi(void){ //new game
+void game_new(void){ //new game
 
 	int a,b,d,q;
 	float nop;
@@ -7534,7 +7534,7 @@ void peli_uusi(void){ //new game
 
 	//initialize mopeds
 	mopoja=10;
-	alustamopot();
+	initializemopeds();
 	for (q=1; q<100; q++){
 		mopot[q].pois=true;
 	}
@@ -7747,7 +7747,7 @@ void cfg_load(void){
 		//SOUNDS_ON=options[1];
 
 }
-void soita(int samplenumero,float volume,float paikkax,float paikkaz){ //play a sound
+void playsound(int samplenumero,float volume,float paikkax,float paikkaz){ //play a sound
 	if(soundtimer[samplenumero]<40)return;
 	if(!(options[1]&&SOUNDS_LOADED))return;
 
